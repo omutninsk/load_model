@@ -75,7 +75,7 @@ def send_requests(url, requests_per_second):
     with tracer.start_as_current_span('send_requests') as span:
         while True:
             for i in range(requests_per_second):
-                with tracer.start_active_span('make_request') as request_span:
+                with tracer.start_as_current_span('make_request') as request_span:
                     span.add_event(f'Send request {url}')
                     requests.get(url)
             time.sleep(1)
@@ -83,8 +83,8 @@ def send_requests(url, requests_per_second):
 def make_requests(endpoint1_requests, endpoint2_requests):
     with tracer.start_as_current_span('make_requests') as span:
         span.add_event('Start tasks')
-        send_requests.delay('http://localhost:5011', endpoint1_requests)
-        send_requests.delay('http://localhost:5012', endpoint2_requests)
+        send_requests.delay('http://microservice1:5011', endpoint1_requests)
+        send_requests.delay('http://microservice2:5012', endpoint2_requests)
 
 @app.route('/')
 def index():
