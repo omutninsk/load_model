@@ -15,7 +15,8 @@
                 "AGENT_HOST_NAME": "localhost",
                 "FLASK_DEBUG": "1",
                 "SERVICE_NAME": "request_generator",
-                "RABBIT_CONNECTION": "guest:guest@localhost:5672"
+                "CELERY_BACKEND": "pyamqp://guest:guest@localhost:5672",
+                "CELERY_BROKER": "rpc://guest:guest@localhost:5672"
                 //"SERVICE_NAME": "microservice1",
                 //"SERVICE_PORT": "5011"
             },

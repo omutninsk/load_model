@@ -92,7 +92,7 @@ services:
       - test_network
 
   mq:
-    image: rabbitmq:management
+    image: rabbitmq:3-management
     ports:
       - 5672:5672
       - 15672:15672
@@ -112,6 +112,17 @@ services:
   #    - mq
   #   networks:
   #     - test_network
+  tasks:
+    build: ./request_generator
+    links:
+      - mq
+    environment:
+      - SERVICE_NAME=request_generator
+      - CELERY_BROKER=amqp://guest:guest@mq:5672
+      - CELEERY_BACKEND=rpc://guest:guest@mq:5672
+    command: ["tasks"]
+    networks:
+      - test_network
   flower:
     build: ./request_generator
     ports:
@@ -119,8 +130,12 @@ services:
     links:
       - mq
     environment:
-      - RABBIT_CONNECTION='guest:guest@mq:5672'
+      - SERVICE_NAME=request_generator
+      - CELERY_BROKER=pyamqp://guest:guest@mq:5672
+      - CELEERY_BACKEND=rpc://guest:guest@mq:5672
     command: ["flower"]
+    networks:
+      - test_network
   microservice1:
     build: ./microservice
     ports:

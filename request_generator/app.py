@@ -14,7 +14,6 @@ from opentelemetry.instrumentation.celery import CeleryInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 name=os.environ.get('SERVICE_NAME')
-
 @worker_process_init.connect(weak=False)
 def init_celery_tracing(*args, **kwargs):
     trace.set_tracer_provider(TracerProvider(
@@ -38,17 +37,18 @@ def celery_init_app(app: Flask) -> Celery:
 
 app = Flask(name)
 
-conn = os.environ.get('RABBIT_CONNECTION')
 
+celery_broker = os.environ.get('CELERY_BROKER')
+celery_backend = os.environ.get('CELERY_BACKEND')
 
 app.config.from_mapping(
     CELERY=dict(
-        broker_url=f'pyamqp://{conn}//',
-        result_backend=f'rpc://{conn}//',
+        broker_url=celery_broker,
+        result_backend=celery_backend,
         task_ignore_result=True,
     ),
 )
-celery_app = celery_init_app(app)
+celery = celery_init_app(app)
 #flower = Flower(celery)
 # Configure OpenTelemetry to export traces to Jaeger
 provider = TracerProvider()
@@ -70,7 +70,7 @@ trace.get_tracer_provider().add_span_processor(
 tracer = trace.get_tracer(name)
 
 
-@shared_task(ignore_result=False)
+@celery.task(ignore_result=False)
 def send_requests(url, requests_per_second):
     with tracer.start_as_current_span('send_requests') as span:
         while True:
@@ -81,8 +81,6 @@ def send_requests(url, requests_per_second):
             time.sleep(1)
 
 def make_requests(endpoint1_requests, endpoint2_requests):
-    # send_requests.delay('http://localhost:5011', endpoint1_requests)
-    # send_requests.delay('http://localhost:5012', endpoint2_requests)
     with tracer.start_as_current_span('make_requests') as span:
         span.add_event('Start tasks')
         send_requests.delay('http://localhost:5011', endpoint1_requests)
