@@ -1,4 +1,4 @@
-import os, time, requests
+import os, time, requests, random
 from flask import Flask, jsonify, request, render_template
 from celery import Celery, Task
 from celery import shared_task
@@ -15,7 +15,9 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-
+from concurrent.futures import ThreadPoolExecutor
+from time import sleep
+from random import randint
 
 name=os.environ.get('SERVICE_NAME')
 
@@ -91,17 +93,29 @@ def send_requests(url, requests_per_second):
                     requests.get(url)
             time.sleep(1)
 
+def make_additional():
+    x = random.randrange(100)   
+    if x>90:
+        return "&additional=one"
+    elif x>80:
+        return "&additional=two"
+    elif x>70:
+        return "&additional=three"
+    else:
+        return ''
+
 def make_requests(endpoint1_requests, endpoint2_requests):
+    
     with tracer.start_as_current_span('make_requests') as span:
         span.add_event('Start tasks')
         send_requests.delay('http://microservice1:5011', endpoint1_requests)
         send_requests.delay('http://microservice2:5012', endpoint2_requests)
 
-def make_sync_request(url, requests_per_second):
-    for i in range(requests_per_second):
-        with tracer.start_as_current_span('make_request') as span:
-            span.add_event(f'Send request {url}')
-            requests.get(url)
+def make_sync_request(url):
+    sleep(randint(1,7))
+    with tracer.start_as_current_span('make_request') as span:
+        span.add_event(f'Send request {url}')
+        requests.get(url)
 
 @app.route('/')
 def index():
@@ -110,10 +124,15 @@ def index():
     endpoint2_requests = int(request.args.get('endpoint2', 2))
     try:
         span.add_event('Start request generation')
-        # headers = {}
-        # make_requests(endpoint1_requests, endpoint2_requests)
-        make_sync_request('http://localhost:5011', endpoint1_requests)
-        make_sync_request('http://localhost:5012', endpoint2_requests)
+        urls =[]
+        for i in range(endpoint1_requests):
+            x = random.randrange(300) + 50
+            y = random.randrange(300) + 50
+            # make_requests(endpoint1_requests, endpoint2_requests)
+            urls.append(f'http://localhost:5011/generate_image?x={x}&y={y}' + make_additional())
+        with ThreadPoolExecutor(max_workers=10) as executor: # создаем пул из 10 потоков
+            for url in urls:
+                executor.submit(make_sync_request, url)
     except Exception as e:
        span.add_event(f'Error while generating requests: {str(e)}')
     return render_template('index.html', endpoint1=endpoint1_requests, endpoint2=endpoint2_requests)

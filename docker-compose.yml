@@ -18,6 +18,18 @@ services:
       - xpack.security.enabled=false
     volumes:
       - esdata:/usr/share/elasticsearch/data
+  
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.3
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - test_network
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
 
   jaeger-collector:
     image: jaegertracing/jaeger-collector
