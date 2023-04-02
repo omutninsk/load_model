@@ -16,25 +16,24 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from concurrent.futures import ThreadPoolExecutor
-from time import sleep
 from random import randint
 
 name=os.environ.get('SERVICE_NAME')
 
-@worker_process_init.connect(weak=False)
-def init_celery_tracing(*args, **kwargs):
-    trace.set_tracer_provider(TracerProvider(
-        resource=Resource.create({SERVICE_NAME: name})
-    ))
-    exporter = OTLPSpanExporter(
-        endpoint="http://microservice1:5011",
-        insecure=True,
-    )
-    span_processor = BatchSpanProcessor(exporter)
-    #span_processor = BatchSpanProcessor(ConsoleSpanExporter())
-    trace.get_tracer_provider().add_span_processor(span_processor)
+# @worker_process_init.connect(weak=False)
+# def init_celery_tracing(*args, **kwargs):
+#     trace.set_tracer_provider(TracerProvider(
+#         resource=Resource.create({SERVICE_NAME: name})
+#     ))
+#     exporter = OTLPSpanExporter(
+#         endpoint="http://microservice1:5011",
+#         insecure=True,
+#     )
+#     span_processor = BatchSpanProcessor(exporter)
+#     #span_processor = BatchSpanProcessor(ConsoleSpanExporter())
+#     trace.get_tracer_provider().add_span_processor(span_processor)
     
-    CeleryInstrumentor().instrument()
+#     CeleryInstrumentor().instrument()
 
 def celery_init_app(app: Flask) -> Celery:
     class FlaskTask(Task):
@@ -84,14 +83,15 @@ trace.get_tracer_provider().add_span_processor(
 tracer = trace.get_tracer(name)
 
 @celery.task(ignore_result=False)
-def send_requests(url, requests_per_second):
-    with trace.get_tracer(__name__).start_as_current_span('send_request to microsrvice') as span:
-        while True:
-            for i in range(requests_per_second):
-                with tracer.start_as_current_span('make_request') as request_span:
-                    span.add_event(f'Send request {url}')
-                    requests.get(url)
-            time.sleep(1)
+def send_requests():
+    #with trace.get_tracer(__name__).start_as_current_span('send_request to microsrvice') as span:
+    while True:
+        make_requests()
+        #for i in range(requests_per_second):
+            #with tracer.start_as_current_span('make_request') as request_span:
+                #span.add_event(f'Send request {url}')
+                #requests.get(url)
+        time.sleep(randint(1,15))
 
 def make_additional():
     x = random.randrange(100)   
@@ -104,18 +104,22 @@ def make_additional():
     else:
         return ''
 
-def make_requests(endpoint1_requests, endpoint2_requests):
-    
-    with tracer.start_as_current_span('make_requests') as span:
-        span.add_event('Start tasks')
-        send_requests.delay('http://microservice1:5011', endpoint1_requests)
-        send_requests.delay('http://microservice2:5012', endpoint2_requests)
-
 def make_sync_request(url):
-    sleep(randint(1,7))
+    time.sleep(randint(1,15))
     with tracer.start_as_current_span('make_request') as span:
         span.add_event(f'Send request {url}')
         requests.get(url)
+
+def make_requests():
+    urls = []
+    for i in range(randint(1,10)):
+        x = random.randrange(300) + 50
+        y = random.randrange(300) + 50
+        urls.append(f'http://localhost:5011/generate_image?x={x}&y={y}' + make_additional())
+        with ThreadPoolExecutor(max_workers=10) as executor: # создаем пул из 10 потоков
+            for url in urls:
+                executor.submit(make_sync_request, url)
+
 
 @app.route('/')
 def index():
@@ -124,18 +128,14 @@ def index():
     endpoint2_requests = int(request.args.get('endpoint2', 2))
     try:
         span.add_event('Start request generation')
-        urls =[]
-        for i in range(endpoint1_requests):
-            x = random.randrange(300) + 50
-            y = random.randrange(300) + 50
-            # make_requests(endpoint1_requests, endpoint2_requests)
-            urls.append(f'http://localhost:5011/generate_image?x={x}&y={y}' + make_additional())
-        with ThreadPoolExecutor(max_workers=10) as executor: # создаем пул из 10 потоков
-            for url in urls:
-                executor.submit(make_sync_request, url)
+        make_requests()
     except Exception as e:
        span.add_event(f'Error while generating requests: {str(e)}')
     return render_template('index.html', endpoint1=endpoint1_requests, endpoint2=endpoint2_requests)
 
+@app.route('/start_task')
+def start_task():
+    send_requests.apply_async()
+    return 'ok'
 if __name__ == "__main__": 
   app.run(host='0.0.0.0', port=8000)
