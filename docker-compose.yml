@@ -152,6 +152,7 @@ services:
       - SERVICE_NAME=microservice1
       - SERVICE_PORT=5011
       - AGENT_HOST_NAME=jaeger-agent
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@localhost:5432/logs_db
     links:
       - jaeger-agent
     networks:
@@ -167,6 +168,7 @@ services:
       - SERVICE_NAME=microservice2
       - SERVICE_PORT=5012
       - AGENT_HOST_NAME=jaeger-agent
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@localhost:5432/logs_db
     links:
       - jaeger-agent
     networks:

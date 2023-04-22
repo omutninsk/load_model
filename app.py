@@ -13,6 +13,7 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExport
 from opentelemetry.instrumentation.celery import CeleryInstrumentor
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
+
 #name=os.environ.get('SERVICE_NAME')
 name ="request_generator"
 @worker_process_init.connect(weak=False)
@@ -82,8 +83,6 @@ def send_requests(url, requests_per_second):
             time.sleep(1)
 
 def make_requests(endpoint1_requests, endpoint2_requests):
-    # send_requests.delay('http://localhost:5011', endpoint1_requests)
-    # send_requests.delay('http://localhost:5012', endpoint2_requests)
     with tracer.start_as_current_span('make_requests') as span:
         span.add_event('Start tasks')
         send_requests.delay('http://localhost:5011', endpoint1_requests)

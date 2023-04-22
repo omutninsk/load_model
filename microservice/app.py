@@ -1,4 +1,4 @@
-import os, random, time
+import os, random, time, uuid, datetime
 from flask import Flask, request, send_file
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
@@ -9,7 +9,7 @@ from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-#from .modules.random_image import RandomImage
+from flask_sqlalchemy import SQLAlchemy
 
 name=os.environ.get('SERVICE_NAME')
 provider = TracerProvider()
@@ -34,6 +34,22 @@ trace.get_tracer_provider().add_span_processor(
 tracer = trace.get_tracer(name)
 
 app = Flask(name)
+SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+db = SQLAlchemy(app)
+class LogItem(db.Model):
+    __tablename__ = 'logs'
+
+    id = db.Column(db.String(40), primary_key=True, default=uuid.uuid4)
+    action = db.Column(db.String(20), unique=True)
+    value = db.Column(db.String(80), unique=True)
+    created_date = db.DateTime()
+
+    def __init__(self, username, email):
+        self.username = username
+
+    def __repr__(self):
+        return '<User %r>' % self.username
 
 FlaskInstrumentor().instrument_app(app)
 
@@ -76,6 +92,9 @@ def generate_image():
     elif additional == "three":
        x += 300
        y += 300
+    elif additional == "four":
+       x += 400
+       y += 150
     else:
        pass
     
@@ -85,6 +104,14 @@ def generate_image():
       span.add_event('Start image generation.')
       image_bytes = image.generate()
       span.add_event('End image generation.')
+      span.add_event('Logging into db.')
+      item = LogItem(action="generate_image", value=f'x={x},y={y}', created_date=datetime.datetime.utcnow())
+      db.session.add(item)
+      db.session.commit()
     return send_file(image_bytes, mimetype='image/jpeg')
- 
-app.run(host='0.0.0.0', port=int(os.environ.get('SERVICE_PORT')))
+
+if __name__ == '__main__':
+    with app.app_context():
+        print("create db if not exists")
+        db.metadata.create_all(bind='__all__')
+    app.run(host='0.0.0.0', port=int(os.environ.get('SERVICE_PORT')))
