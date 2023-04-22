@@ -41,6 +41,8 @@
             },
             "args": [
                 // "db",
+                // "init",
+                // "migrate",
                 // "upgrade",
                 "run",
                 "--no-debugger"

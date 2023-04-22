@@ -44,15 +44,12 @@ class LogItem(db.Model):
     __tablename__ = 'logs'
 
     id = db.Column(db.String(40), primary_key=True, default=uuid.uuid4)
-    action = db.Column(db.String(20), unique=True)
-    value = db.Column(db.String(80), unique=True)
+    action = db.Column(db.String(20))
+    value = db.Column(db.String(80))
     created_date = db.DateTime()
 
-    def __init__(self, username, email):
-        self.username = username
-
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<LogItem %r>' % self.id
 
 FlaskInstrumentor().instrument_app(app)
 
@@ -80,6 +77,16 @@ def index():
     time.sleep(random.randint(0,2000)/1000)
     span.add_event('End processing request.')
     return 'Hello World!'
+
+@app.route('/get_logs', methods=['GET'])
+def get_logs():
+  #count = int(request.args.get("count"))
+  logs = LogItem.query.all()
+  data = []
+  for item in logs:
+    data.append({"action": item.action, "value": item.value, "created_date": item.created_date})
+  return {"data": data}
+    
 
 @app.route('/generate_image', methods=['GET'])  
 def generate_image():
