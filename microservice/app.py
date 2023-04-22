@@ -10,6 +10,7 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 name=os.environ.get('SERVICE_NAME')
 provider = TracerProvider()
@@ -37,6 +38,8 @@ app = Flask(name)
 SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
 class LogItem(db.Model):
     __tablename__ = 'logs'
 
@@ -111,7 +114,4 @@ def generate_image():
     return send_file(image_bytes, mimetype='image/jpeg')
 
 if __name__ == '__main__':
-    with app.app_context():
-        print("create db if not exists")
-        db.metadata.create_all(bind='__all__')
     app.run(host='0.0.0.0', port=int(os.environ.get('SERVICE_PORT')))

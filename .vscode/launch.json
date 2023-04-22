@@ -40,6 +40,8 @@
                 "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/logs_db"
             },
             "args": [
+                // "db",
+                // "upgrade",
                 "run",
                 "--no-debugger"
             ],

@@ -120,7 +120,7 @@ services:
       - mq
       - jaeger-agent
       - microservice1
-      - microservice2
+      # - microservice2
     environment:
       - SERVICE_NAME=request_generator
       - CELERY_BROKER=amqp://guest:guest@mq:5672/
@@ -158,21 +158,21 @@ services:
     networks:
       - test_network
 
-  microservice2:
-    build: ./microservice
-    ports:
-      - 5012:5012
-    command: ["app2"]
-    restart: on-failure
-    environment:
-      - SERVICE_NAME=microservice2
-      - SERVICE_PORT=5012
-      - AGENT_HOST_NAME=jaeger-agent
-      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@localhost:5432/logs_db
-    links:
-      - jaeger-agent
-    networks:
-      - test_network
+  # microservice2:
+  #   build: ./microservice
+  #   ports:
+  #     - 5012:5012
+  #   command: ["app2"]
+  #   restart: on-failure
+  #   environment:
+  #     - SERVICE_NAME=microservice2
+  #     - SERVICE_PORT=5012
+  #     - AGENT_HOST_NAME=jaeger-agent
+  #     - SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@localhost:5432/logs_db
+  #   links:
+  #     - jaeger-agent
+  #   networks:
+  #     - test_network
 
 volumes:
   esdata:
