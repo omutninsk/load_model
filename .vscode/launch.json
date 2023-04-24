@@ -42,7 +42,7 @@
             "args": [
                 // "db",
                 // "init",
-                // "migrate",
+                //"migrate",
                 // "upgrade",
                 "run",
                 "--no-debugger"

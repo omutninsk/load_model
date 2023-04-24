@@ -1,5 +1,5 @@
 import os, random, time, uuid, datetime
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, render_template
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -44,12 +44,22 @@ class LogItem(db.Model):
     __tablename__ = 'logs'
 
     id = db.Column(db.String(40), primary_key=True, default=uuid.uuid4)
+    name = db.Column(db.String(20))
+    value = db.Column(db.String(80))
+
+    def __repr__(self):
+        return '<LogItem %r>' % self.id
+
+class Settings(db.Model):
+    __tablename__ = 'settings'
+
+    id = db.Column(db.String(40), primary_key=True, default=uuid.uuid4)
     action = db.Column(db.String(20))
     value = db.Column(db.String(80))
     created_date = db.DateTime()
 
     def __repr__(self):
-        return '<LogItem %r>' % self.id
+        return '<Setting %r>' % self.name
 
 FlaskInstrumentor().instrument_app(app)
 
@@ -72,11 +82,15 @@ class RandomImage():
 
 @app.route('/')
 def index():
-  with tracer.start_as_current_span("server_request") as span:
-    span.add_event('Start processing request.')
-    time.sleep(random.randint(0,2000)/1000)
-    span.add_event('End processing request.')
-    return 'Hello World!'
+  anomaly_setting = db.session.query(Settings).filter(Settings.action == 'anomaly').first()
+  anomaly = request.args.get('anomaly', False)
+  if anomaly == 'on':
+     anomaly_setting.value = 'true'
+     db.session.commit()
+  else:
+     anomaly_setting.value = 'false'
+     db.session.commit()
+  return render_template('index_m.htm', anomaly=anomaly)
 
 @app.route('/get_logs', methods=['GET'])
 def get_logs():
@@ -90,6 +104,7 @@ def get_logs():
 
 @app.route('/generate_image', methods=['GET'])  
 def generate_image():
+    anomaly_setting = db.session.query(Settings).filter(Settings.action == 'anomaly').first()
     x = int(request.args.get("x"))
     y = int(request.args.get("y"))
     additional = request.args.get("additional", None)
@@ -107,8 +122,9 @@ def generate_image():
        y += 150
     else:
        pass
-    
     with tracer.start_as_current_span("image_generator") as span:
+      if anomaly_setting.value == 'true':
+         time.sleep(random.randint(0,5000)/1000)
       span.add_event('Start processing request.')
       image = RandomImage(x,y)
       span.add_event('Start image generation.')

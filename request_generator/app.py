@@ -101,6 +101,8 @@ def make_additional():
         return "&additional=two"
     elif x>70:
         return "&additional=three"
+    elif x>60:
+        return "&additional=four"
     else:
         return ''
 
