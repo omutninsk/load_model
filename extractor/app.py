@@ -19,19 +19,12 @@ def internal_server_error(e):
 def get_app(config) -> Flask:
     """Get flask application."""
     name=os.environ.get('SERVICE_NAME')
-    es_host=os.environ.get('ELASATICSEARCH_HOST')
-    es_port=int(os.environ.get('ELASATICSEARCH_PORT'))
     app = Flask(name)
     app.config.from_object(config)
 
-    @app.route('/')
-    def index():
-        es = ES_Connector(es_host, es_port)
-        index_list = es.get_indexes_list()
-        if es is not None:
-            search_object = {'query': {'match': {'process.serviceName': 'microservice1'}}}
-            res = es.search('jaeger-*', json.dumps(search_object))
-        return {"res": res}
+    # @app.route('/')
+    # def index():
+    #     return {"res": res}
 
     # @app.route('/assets/js/<path:path>')
     # def send_js(path):
