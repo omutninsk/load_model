@@ -123,11 +123,11 @@ def generate_image():
     else:
        pass
     with tracer.start_as_current_span("image_generator") as span:
-      if anomaly_setting.value == 'true':
-         time.sleep(random.randint(0,5000)/1000)
       span.add_event('Start processing request.')
       image = RandomImage(x,y)
       span.add_event('Start image generation.')
+      if anomaly_setting.value == 'true':
+         time.sleep(random.randint(0,5000)/1000)
       image_bytes = image.generate()
       span.add_event('End image generation.')
       span.add_event('Logging into db.')

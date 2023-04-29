@@ -49,6 +49,34 @@
             ],
             "jinja": true,
             "justMyCode": true
+        },
+        {
+            "name": "Extractor",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "extractor/app.py",
+                "AGENT_HOST_NAME": "localhost",
+                "FLASK_DEBUG": "1",
+                "CELERY_BROKER": "pyamqp://guest:guest@localhost:5672/",
+                "CELERY_BACKEND": "rpc://guest:guest@localhost:5672/",
+                "SERVICE_NAME": "extractor",
+                "SERVICE_PORT": "5001",
+                "ELASATICSEARCH_HOST": "localhost",
+                "ELASATICSEARCH_PORT": "9200",
+                "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/logs_db"
+            },
+            "args": [
+                // "db",
+                // "init",
+                //"migrate",
+                // "upgrade",
+                "run",
+                "--no-debugger"
+            ],
+            "jinja": true,
+            "justMyCode": true
         }
     ]
 }
