@@ -23,10 +23,19 @@ class SourceField(MethodView):
         """Добавление поля источника данных."""
         name = request.form_schema["name"]
         source_id = request.form_schema["source_id"]
-        plugin_name = request.form_schema["plugin_name"]
+        operations = request.form_schema["operations"]
         with session_scope() as session:
-            id = source_field_service.create_source_field(session, name, source_id, plugin_name)
+            id = source_field_service.create_source_field(session, name, source_id, operations)
         return {"msg": "Объект создан", "data": {"id": id}}
+    
+    @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={200: source_field_schemas.SourceFieldListResponseSchema, 400: base_schemas.ErrorResponseSchema})
+    def get(self):
+        """Получение полей источника данных по идентификатору"""
+        id = request.query_schema["id"]
+        with session_scope() as session:
+            items = source_field_service.get_source_fields_by_source_id(session, id)
+            result = source_field_schemas.SourceFieldResponseSchema(many=True).dump(items)     
+        return {"items": result}
     
     @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={200: base_schemas.SuccessResponseSchema, 400: base_schemas.ErrorResponseSchema})
     def delete(self):
@@ -39,7 +48,7 @@ class SourceField(MethodView):
 class SourceFieldsList(MethodView):
     """Sources list."""
 
-    @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={200: source_field_schemas.SourceFieldListResponseSchema, 400: base_schemas.ErrorResponseSchema})
+    @swagger_decorator(response_schema={200: source_field_schemas.SourceFieldListResponseSchema, 400: base_schemas.ErrorResponseSchema})
     def get(self):
         """Список полей данных."""
         with session_scope() as session:

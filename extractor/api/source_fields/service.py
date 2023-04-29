@@ -20,14 +20,14 @@ field_types = {'TEXT': TEXT,
                 'BOOLEAN': BOOLEAN}
 
 
-def create_source_field(session: Session, name: str, source_id: str, plugin_name: str) -> str:
+def create_source_field(session: Session, name: str, source_id: str, operations: str) -> str:
     """Create object."""           
     source_field_id = str(uuid.uuid4())
     new_source = SourceField(
                 id = source_field_id,
                 name = name,
                 source_id = source_id,
-                plugin_name = plugin_name
+                operations = json.loads(operations)
             )
     session.add(new_source)
     return source_id

@@ -32,7 +32,9 @@ class SourceField(Base):
     id = Column(TEXT, primary_key=True, nullable=False, default=uuid.uuid4)
     source_id = Column(TEXT, ForeignKey('sources.id'), nullable=True)
     name = Column(TEXT, nullable=False)
-    plugin_name = Column(TEXT, nullable=False)
+    operations = Column(JSON, nullable=True)
+
+
 
 class Objects(Base):
     """Objects class."""

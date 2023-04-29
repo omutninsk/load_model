@@ -8,7 +8,7 @@ class SourceFieldCreateCommandSchema(Schema):
     """Команда создания источника данных."""
 
     name = fields.String(required=True, doc='Название')
-    plugin_name = fields.String(required=True, doc='Название обработчика поля')
+    operations = fields.String(required=True, doc='Обработчики поля')
     source_id = fields.String(required=True, doc='Идентификатор источника данных')
     class Meta:
         """Meta."""
@@ -20,7 +20,7 @@ class SourceFieldResponseSchema(Schema):
     """Sources list."""
     id = fields.String(required=True, doc='id')
     name = fields.String(required=True, doc='Название')
-    plugin_name = fields.String(required=True, doc='Название обработчика поля')
+    operations = fields.String(required=True, doc='Обработчики поля')
     source_id = fields.String(required=True, doc='Идентификатор источника данных')
     class Meta:
         """Meta."""
