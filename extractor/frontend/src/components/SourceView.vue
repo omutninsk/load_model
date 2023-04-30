@@ -1,23 +1,36 @@
 <template>
   <div>
-    <form @submit.prevent="addSource">
-      <label>Source Name:</label>
-      <input type="text" v-model="newSource.name" required>
-      <br><br>
-      <label>Index Name:</label>
-      <input type="text" v-model="newSource.index_name" required>
-      <br><br>
-      <label>Target Field:</label>
-      <input type="text" v-model="newSource.target_field" required>
-      <br><br>
-      <label>Search Object:</label>
-      <textarea v-model="newSource.search_object"></textarea>
-      <br><br>
-      <button type="submit">Add Source</button>
-    </form>
+    <div>
+      <!-- Кнопка для открытия модального окна -->
+      <b-button @click="showModal = true">Добавить Source</b-button>
+      <!-- Модальное окно -->
+      <b-modal v-model="showModal" title="Добавить Source" @ok="addSource" @cancel="showModal = false">
+        <div>
+          <form>
+            <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" class="form-control" id="name" v-model="newSource.name">
+            </div>
+            <div class="form-group">
+              <label for="index_name">Index Name:</label>
+              <input type="text" class="form-control" id="index_name" v-model="newSource.index_name">
+            </div>
+            <div class="form-group">
+              <label for="target_field">Target Field:</label>
+              <input type="text" class="form-control" id="target_field" v-model="newSource.target_field">
+            </div>
+            <div class="form-group">
+              <label for="target_field">Search Object:</label>
+              <input type="text" class="form-control" id="search_object" v-model="newSource.search_object">
+            </div>
+          </form>
+        </div>
+      </b-modal>
+    </div>
     <br>
     <div v-for="source in sources" :key="source.id">
       <h2>{{ source.name }}</h2>
+      <p>Id: {{ source.id }}</p>
       <p>Index Name: {{ source.index_name }}</p>
       <p>Target Field: {{ source.target_field }}</p>
       <p>Search Object: {{ source.search_object }}</p>
@@ -32,6 +45,7 @@ import axios from 'axios'
 export default {
   data() {
     return {
+      showModal: false,
       sources: [],
       newSource: {
         name: '',
@@ -58,8 +72,11 @@ export default {
           })
     },
     deleteSource(id) {
-      axios.delete(`/api/sources/${id}`)
-          .then(response => {
+      const data = {
+        id: id
+      }
+      console.log(data)
+      axios.delete(`/api/sources/`, {data}).then(response => {
             console.log(response)
             this.sources = this.sources.filter(source => source.id !== id)
           })
