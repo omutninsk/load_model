@@ -26,7 +26,7 @@
           </form>
         </div>
       </b-modal>
-      <b-modal v-model="showEdit" size="lg" title="Edit" @ok="addSource" @cancel="showEdit = false">
+      <b-modal v-model="showEdit" size="lg" title="Edit" @ok="addSource" @cancel="clear">
         <div>
           <SourceFieldsView :source_id="current_source_id"/>
         </div>
@@ -75,6 +75,10 @@ export default {
       this.current_source_id = id
       console.log(id)
       this.showEdit = true
+    },
+    clear() {
+      this.showEdit = false
+      this.current_source_id=false
     },
     addSource() {
       const formData = new FormData();

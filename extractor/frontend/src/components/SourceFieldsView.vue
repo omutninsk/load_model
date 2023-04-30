@@ -1,8 +1,27 @@
 <template>
   <div>
     <h3>Source Fields</h3>
-    {{source_id}}
-    <b-table striped hover :items="sourceFields" :fields="tableFields"></b-table>
+    <table>
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Operations</th>
+        <th></th> <!-- добавляем столбец для кнопки удаления -->
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="field in sourceFields" :key="field.id">
+        <td>{{ field.name }}</td>
+        <td>{{ field.operations }}</td>
+        <td>
+          <b-button variant="danger" size="sm" @click="deleteSourceField(field.id)">
+            Delete
+          </b-button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+<!--    <b-table striped hover :items="sourceFields" :fields="tableFields"></b-table>-->
     <b-form-group>
       <b-form-input v-model="newSourceField.name" placeholder="Enter field name"></b-form-input>
       <b-form-input v-model="newSourceField.operations" placeholder="Operations"></b-form-input>
@@ -18,12 +37,11 @@ export default {
   props: {
     source_id: {
       type: String,
-      required: true
+      required: false
     }
   },
   data() {
     return {
-      newFieldName: '',
       sourceFields: [],
       newSourceField: {
         name: '',
@@ -32,10 +50,15 @@ export default {
       }
     }
   },
+  watch: {
+    source_id() {
+      this.getSourceFields()
+    }
+  },
   computed: {
     tableFields() {
       return [
-        { key: 'id', label: 'ID', sortable: true },
+        // { key: 'id', label: 'ID', sortable: true },
         { key: 'name', label: 'Name', sortable: true },
         { key: 'operations', label: 'Operations' }
       ]
@@ -57,21 +80,33 @@ export default {
           })
       this.newFieldName = ''
     },
-    getSourceFields() {
+    deleteSourceField(id) {
       const params = {
-        id: this.source_id,
-      };
-      axios.get('/api/source_fields/', {params})
-          .then(response => {
-            this.sourceFields = response.data.items
+        "id": id
+      }
+      axios.delete(`/api/source_fields/`, {params}).then(response => {
+            console.log(response)
+            this.getSourceFields()
           })
           .catch(error => {
             console.log(error)
           })
+    },
+    getSourceFields() {
+      const params = {
+        id: this.source_id,
+      };
+      if (this.source_id) {
+        axios.get('/api/source_fields/', {params})
+            .then(response => {
+              this.sourceFields = response.data.items
+            })
+            .catch(error => {
+              console.log(error)
+            })
+      }
+
     }
-  },
-  updated() {
-    this.getSourceFields()
   }
 }
 </script>
