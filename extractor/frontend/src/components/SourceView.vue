@@ -2,9 +2,9 @@
   <div>
     <div>
       <!-- Кнопка для открытия модального окна -->
-      <b-button @click="showModal = true">Добавить Source</b-button>
+      <b-button @click="showModal = true">Add Source</b-button>
       <!-- Модальное окно -->
-      <b-modal v-model="showModal" title="Добавить Source" @ok="addSource" @cancel="showModal = false">
+      <b-modal v-model="showModal" title="Add Source" @ok="addSource" @cancel="showModal = false">
         <div>
           <form>
             <div class="form-group">
@@ -26,26 +26,41 @@
           </form>
         </div>
       </b-modal>
+      <b-modal v-model="showEdit" size="lg" title="Edit" @ok="addSource" @cancel="showEdit = false">
+        <div>
+          <SourceFieldsView :source_id="current_source_id"/>
+        </div>
+      </b-modal>
     </div>
     <br>
-    <div v-for="source in sources" :key="source.id">
-      <h2>{{ source.name }}</h2>
-      <p>Id: {{ source.id }}</p>
-      <p>Index Name: {{ source.index_name }}</p>
-      <p>Target Field: {{ source.target_field }}</p>
-      <p>Search Object: {{ source.search_object }}</p>
-      <button @click="deleteSource(source.id)">Delete Source</button>
-    </div>
+    <b-card-group>
+      <div class="row">
+        <div v-for="source in sources" :key="source.id" class="col-md-4">
+          <b-card
+              :title="source.name"
+              :sub-title="source.target_field">
+            <p class="card-text"><strong>Index name:</strong> {{ source.index_name }}</p>
+            <p class="card-text"><strong>Search object:</strong> {{ source.search_object }}</p>
+            <p class="card-text"><strong>ID:</strong> {{ source.id }}</p>
+            <b-button @click="showEditWindow(source.id)">Edit</b-button>
+            <b-button @click="deleteSource(source.id)" variant="danger">Delete</b-button>
+          </b-card>
+        </div>
+      </div>
+    </b-card-group>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-
+import SourceFieldsView from '@/components/SourceFieldsView.vue'
 export default {
+  components: {SourceFieldsView},
   data() {
     return {
       showModal: false,
+      showEdit: false,
+      current_source_id: null,
       sources: [],
       newSource: {
         name: '',
@@ -56,6 +71,11 @@ export default {
     }
   },
   methods: {
+    showEditWindow(id){
+      this.current_source_id = id
+      console.log(id)
+      this.showEdit = true
+    },
     addSource() {
       const formData = new FormData();
       formData.append('name', this.newSource.name)
@@ -72,11 +92,10 @@ export default {
           })
     },
     deleteSource(id) {
-      const data = {
-        id: id
+      const params = {
+        "id": id
       }
-      console.log(data)
-      axios.delete(`/api/sources/`, {data}).then(response => {
+      axios.delete(`/api/sources/`, {params}).then(response => {
             console.log(response)
             this.sources = this.sources.filter(source => source.id !== id)
           })
