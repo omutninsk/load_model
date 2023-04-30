@@ -43,22 +43,22 @@ export default {
   },
   methods: {
     addSource() {
-      axios.post('http://localhost:5000/api/sources/', this.newSource)
+      const formData = new FormData();
+      formData.append('name', this.newSource.name)
+      formData.append('index_name', this.newSource.index_name)
+      formData.append('target_field', this.newSource.target_field)
+      formData.append('search_object', this.newSource.search_object)
+      axios.post('/api/sources', formData)
           .then(response => {
-            this.sources.push(response.data)
-            this.newSource = {
-              name: '',
-              index_name: '',
-              target_field: '',
-              search_object: ''
-            }
+            console.log(response)
+            this.getSources()
           })
           .catch(error => {
             console.log(error)
           })
     },
     deleteSource(id) {
-      axios.delete(`http://localhost:5000/api/sources/${id}`)
+      axios.delete(`/api/sources/${id}`)
           .then(response => {
             console.log(response)
             this.sources = this.sources.filter(source => source.id !== id)
@@ -68,7 +68,7 @@ export default {
           })
     },
     getSources() {
-      axios.get('http://localhost:5000/api/sources/list/')
+      axios.get('/api/sources/list/')
           .then(response => {
             this.sources = response.data.items
           })

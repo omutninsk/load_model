@@ -2,7 +2,7 @@ import os, random, time, uuid, datetime, json
 from flask import Flask, request, send_file, render_template
 from modules.es import ES_Connector
 from flask import Flask, send_from_directory
-from celery import Celery
+from flask_cors import CORS
 from sqlalchemy import create_engine
 from flasgger import Swagger
 from flask_marshmallow import Marshmallow
@@ -48,7 +48,8 @@ def get_app(config) -> Flask:
 
 
     Marshmallow(app)
-    Swagger(app) 
+    Swagger(app)
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
     for blueprint in blueprints:
         app.register_blueprint(blueprint.obj, url_prefix = blueprint.url_prefix)
     app.register_error_handler(Exception, internal_server_error)
