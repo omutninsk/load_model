@@ -14,28 +14,37 @@ field_types = {'TEXT': TEXT,
                 'INTEGER': INTEGER,
                 'BOOLEAN': BOOLEAN}
 
-def connect_es(session, id):
-    source = session.query(Source).filter_by(id = id).one()
+def connect_es():
     es_host=os.environ.get('ELASATICSEARCH_HOST')
     es_port=int(os.environ.get('ELASATICSEARCH_PORT'))
     es = ES_Connector(es_host, es_port)
-    index_list = es.get_indexes_list()
+    return es
+
+def fetch(session, id):
+    source = session.query(Source).filter_by(id = id).one()
+    fields = session.query(SourceField).filter_by(source_id = id).all()
+    es = connect_es()
+    # index_list = es.get_indexes_list()
     if es is not None:
         res = es.search(source.index_name, json.dumps(source.search_object))
-    
+
+    source = res.get('hits').get('hits')[0]
+
     target = {}
+
     rule_text = [
         {"name":"copy",
          "target": "items",
-         "source": "hits.hits.0"
+         "source": "_source"
          }
     ]
-    mapper = JsonMapper(source=res, target=target, rules=rule_text)
-    mapper.run()
-    return target
+    for field in fields:
+        mapper = JsonMapper(source=source, target=target, rules=field.operations)
+        mapper.run()
+    return target or source
 
 def get_mapped_data(session, id):
     source = session.query(Source).filter_by(id = id).one().one()
-    fields = session.query(SourceField).filter_by(source_id=source.id).all()
+    
     
     

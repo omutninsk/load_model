@@ -22,10 +22,11 @@
       </tbody>
     </table>
     <table>
-      <tr>
-        <td v-for="item in result" :key="item">{{item}}</td>
+      <tr v-for="item in fetchedData" :key="item.key">
+        <td>{{item.key}}</td><td>{{item.value}}</td>
       </tr>
     </table>
+    <b-button @click="clearData">Clear</b-button>
     <b-button @click="fetchData">Fetch</b-button>
 <!--    <b-table striped hover :items="sourceFields" :fields="tableFields"></b-table>-->
     <b-form-group>
@@ -69,9 +70,20 @@ export default {
         { key: 'name', label: 'Name', sortable: true },
         { key: 'operations', label: 'Operations' }
       ]
+    },
+    fetchedData() {
+      const data = []
+      for (const key in this.result) {
+        data.push({key: key, value: this.result[key]})
+      }
+      console.log(data)
+      return data
     }
   },
   methods: {
+    clearData() {
+      this.result = []
+    },
     fetchData() {
       const params = {
         id: this.source_id,
