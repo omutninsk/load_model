@@ -26,7 +26,7 @@
           </form>
         </div>
       </b-modal>
-      <b-modal v-model="showEdit" size="lg" title="Edit" @ok="addSource" @cancel="clear">
+      <b-modal v-model="showEdit" size="xl" title="Edit" @ok="addSource" @cancel="clear">
         <div>
           <SourceFieldsView :source_id="current_source_id"/>
         </div>

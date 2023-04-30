@@ -21,6 +21,6 @@ class Fetch(MethodView):
         id= request.query_schema["id"]
         with session_scope() as session:
             res = model_service.connect_es(session, id)
-            return {"data": res}
+            return {"items": res}
 
 model_blueprint.add_url_rule('/fetch/', view_func=Fetch.as_view("fetch_api"))

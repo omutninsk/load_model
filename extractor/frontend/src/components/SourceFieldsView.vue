@@ -21,6 +21,12 @@
       </tr>
       </tbody>
     </table>
+    <table>
+      <tr>
+        <td v-for="item in result" :key="item">{{item}}</td>
+      </tr>
+    </table>
+    <b-button @click="fetchData">Fetch</b-button>
 <!--    <b-table striped hover :items="sourceFields" :fields="tableFields"></b-table>-->
     <b-form-group>
       <b-form-input v-model="newSourceField.name" placeholder="Enter field name"></b-form-input>
@@ -43,6 +49,7 @@ export default {
   data() {
     return {
       sourceFields: [],
+      result: [],
       newSourceField: {
         name: '',
         operations: '',
@@ -65,6 +72,20 @@ export default {
     }
   },
   methods: {
+    fetchData() {
+      const params = {
+        id: this.source_id,
+      }
+      if (this.source_id) {
+        axios.get('/api/model/fetch', {params})
+            .then(response => {
+              this.result = response.data.items
+            })
+            .catch(error => {
+              console.log(error)
+            })
+      }
+    },
     addField() {
       const formData = new FormData();
       formData.append('name', this.newSourceField.name)
