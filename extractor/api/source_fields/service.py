@@ -6,7 +6,6 @@ from flask import current_app
 from sqlalchemy.sql.sqltypes import INT, String
 
 import json
-from lxml import etree
 from datetime import datetime
 import pandas as pd
 from sqlalchemy import MetaData, Table, Column, Sequence
@@ -33,13 +32,13 @@ def create_source_field(session: Session, name: str, source_id: str, operations:
     return source_id
 
 def delete_source_field(session, id): 
-    """Удаление временного ключа.""" 
+    """Удаление поля данных.""" 
     exists = session.query(SourceField).filter_by(id = id).first()
     if exists:
         session.query(SourceField).filter_by(id = id).delete()              
 
 def get_source_fields_by_source_id(session, id): 
-    """Удаление временного ключа."""
+    """Получение полей данных по родительскому ид."""
     if id == None:
         return session.query(SourceField).all()
     else:

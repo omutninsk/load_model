@@ -58,8 +58,9 @@ export default {
           })
     },
     deleteSource(id) {
-      axios.delete(`http://localhost:5000/sources/${id}`)
+      axios.delete(`http://localhost:5000/api/sources/${id}`)
           .then(response => {
+            console.log(response)
             this.sources = this.sources.filter(source => source.id !== id)
           })
           .catch(error => {

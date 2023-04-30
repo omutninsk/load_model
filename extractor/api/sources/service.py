@@ -6,7 +6,6 @@ from flask import current_app
 from sqlalchemy.sql.sqltypes import INT, String
 
 import json
-from lxml import etree
 from datetime import datetime
 import pandas as pd
 from sqlalchemy import MetaData, Table, Column, Sequence
