@@ -51,7 +51,7 @@
                 </b-card>
               </b-tab>
               <b-tab title="Graph">
-
+                <b-button @click="fit(source.id)" variant="danger">Fit</b-button>
               </b-tab>
             </b-tabs>
           </b-card>
@@ -89,6 +89,9 @@ export default {
     clear() {
       this.showEdit = false
       this.current_source_id=false
+    },
+    fit() {
+
     },
     addSource() {
       const formData = new FormData();

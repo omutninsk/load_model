@@ -28,17 +28,34 @@ def fetch(session, id):
     if es is not None:
         res = es.search(source.index_name, json.dumps(source.search_object))
 
-    source = res.get('hits').get('hits')[0].get('_source')
+    #source = res.get('hits').get('hits')[0].get('_source')
+    source = res.get('hits').get('hits')[0]
+    result = {}
+    #target = {}
+    for field in fields:
+        target = {}
+        mapper = JsonMapper(source=source, target=target, rules=field.operations)
+        res = mapper.run()
+        result.update(res)
+    
+    return result, source
 
-    target = {}
+def fit(session, id):
+    result = []
+    source = session.query(Source).filter_by(id = id).one()
+    fields = session.query(SourceField).filter_by(source_id = id).all()
+    es = connect_es()
+    # index_list = es.get_indexes_list()
+    if es is not None:
+        res = es.search(source.index_name, json.dumps(source.search_object))
+
+    source = res.get('hits').get('hits')[0].get('_source')
 
     for field in fields:
         mapper = JsonMapper(source=source, target=target, rules=field.operations)
         mapper.run()
-    return target, source
 
-def fit(session, id):
-   pass 
+    result.append()
 
 def get_mapped_data(session, id):
     source = session.query(Source).filter_by(id = id).one().one()
