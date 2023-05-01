@@ -52,13 +52,13 @@ def connect_es():
     es = ES_Connector(es_host, es_port)
     return es
 
-def fetch(session, id):
+def fetch(session, id, count):
     source = session.query(Source).filter_by(id = id).one()
     fields = session.query(SourceField).filter_by(source_id = id).all()
     es = connect_es()
     # index_list = es.get_indexes_list()
     if es is not None:
-        res = es.search(source.index_name, json.dumps(source.search_object))
+        res = es.search(source.index_name, json.dumps(source.search_object), count)
 
     source = res.get('hits').get('hits')[0]
     result = {}
@@ -70,13 +70,13 @@ def fetch(session, id):
     
     return result, source
 
-def fit(session, id):
+def fit(session, id, count):
     result = []
     source = session.query(Source).filter_by(id = id).one()
     fields = session.query(SourceField).filter_by(source_id = id).all()
     es = connect_es()
     if es is not None:
-        res = es.search(source.index_name, json.dumps(source.search_object))
+        res = es.search(source.index_name, json.dumps(source.search_object), count)
     source = res.get('hits').get('hits')
 
     for item in source:

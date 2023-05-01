@@ -1,9 +1,11 @@
 """Admin views."""
 
-import uuid, datetime, os, math, shutil, json
+import uuid, datetime, os, math, shutil, json, io
+from randimage import get_random_image
+import matplotlib
 import pickle
 import pandas as pd
-from flask import Blueprint, request, send_from_directory, current_app
+from flask import Blueprint, request, send_from_directory, current_app, send_file
 from flask.views import MethodView
 from sqlalchemy.orm import session
 from sqlalchemy.sql import select, desc
@@ -22,13 +24,31 @@ from session import session_scope
 model_blueprint = Blueprint('model', __name__)
 
 
+class Predict(MethodView):
+    @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={400: base_schemas.ErrorResponseSchema})
+    def get(self):
+        """Предсказание."""
+        with open('model.pkl', 'rb') as f:
+            coef = pickle.load(f)
+
+        # Создание модели и установка загруженных коэффициентов
+        model = LinearRegression()
+        model.coef_ = coef
+        # img_size = (100,100)
+        # img = get_random_image(img_size)
+        # image_bytes = io.BytesIO()
+        # matplotlib.image.imsave(image_bytes, img)
+        # image_bytes.seek(0)
+        # return send_file(image_bytes, mimetype='image/jpeg')
+
 class Fetch(MethodView):
     @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={400: base_schemas.ErrorResponseSchema})
     def get(self):
         """Обработка логов."""
         id= request.query_schema["id"]
+        count = 1
         with session_scope() as session:
-            res, source = model_service.fetch(session, id)
+            res, source = model_service.fetch(session, id, count)
             return {"items": res, "source": source}
 
 class Fit(MethodView):
@@ -61,8 +81,10 @@ class Fit(MethodView):
         r2 = r2_score(y_test, y_pred)
 
         print('R^2 score:', r2)
-
-        return {"items": res }
+        with open('model.pkl', 'wb') as f:
+            pickle.dump(model.coef_, f)
+        return {"items": {"r2score": r2} }
 
 model_blueprint.add_url_rule('/fetch/', view_func=Fetch.as_view("fetch_api"))
 model_blueprint.add_url_rule('/fit/', view_func=Fit.as_view("fit_api"))
+model_blueprint.add_url_rule('/predict/', view_func=Predict.as_view("predict_api"))

@@ -51,6 +51,9 @@
                 </b-card>
               </b-tab>
               <b-tab title="Graph">
+                <img :src="image" alt="Logo" width="80" height="80" />
+                {{ r2score }}
+                <b-button @click="getImage(source.id)" variant="danger">img</b-button>
                 <b-button @click="fit(source.id)" variant="danger">Fit</b-button>
               </b-tab>
             </b-tabs>
@@ -68,6 +71,8 @@ export default {
   components: {SourceFieldsView},
   data() {
     return {
+      image: null,
+      r2score: null,
       showModal: false,
       showEdit: false,
       current_source_id: null,
@@ -90,8 +95,33 @@ export default {
       this.showEdit = false
       this.current_source_id=false
     },
-    fit() {
-
+    getImage(id) {
+      console.log(id)
+      this.image = null
+      setTimeout(console.log('n'),1)
+      this.image = '/api/model/predict/?id='+id
+      // const params = {
+      //   "id": id
+      // }
+      // axios.get(`/api/model/predict/`, {params}).then(response => {
+      //   console.log(response.data)
+      //       this.image = response.data
+      //     })
+      //     .catch(error => {
+      //       console.log(error)
+      //     })
+    },
+    fit(id) {
+      console.log(id)
+      const params = {
+        "id": id
+      }
+      axios.get(`/api/model/fit/`, {params}).then(response => {
+            this.r2score = response.data.items.r2score
+          })
+          .catch(error => {
+            console.log(error)
+          })
     },
     addSource() {
       const formData = new FormData();
