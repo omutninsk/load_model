@@ -1,7 +1,7 @@
 """Admin service."""
 
 import uuid, logging
-import celery
+import re
 from flask import current_app
 from sqlalchemy.sql.sqltypes import INT, String
 
@@ -22,11 +22,12 @@ field_types = {'TEXT': TEXT,
 def create_source_field(session: Session, name: str, source_id: str, operations: str) -> str:
     """Create object."""           
     source_field_id = str(uuid.uuid4())
+    operations = operations.replace("'", '"')
     new_source = SourceField(
                 id = source_field_id,
                 name = name,
                 source_id = source_id,
-                operations = json.loads(operations.replace("'", '"'))
+                operations = json.loads(operations)
             )
     session.add(new_source)
     return source_id

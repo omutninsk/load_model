@@ -12,8 +12,11 @@ class JsonMapper:
         self.rules = rules
 
     def run(self):
+        target = self.target
+        source = self.source
         for rule in self.rules:
             if "name" in rule:
-                operations[rule["name"]](**rule).run(target=self.target, source=self.source)
+                operations[rule["name"]](**rule).run(target=target, source=source)
             if "bool_operation" in rule:
-                Condition(**rule).run(target=self.target, source=self.source)
+                Condition(**rule).run(target=target, source=self)
+            source = target

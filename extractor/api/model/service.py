@@ -38,7 +38,7 @@ def fetch(session, id):
     return target, source
 
 def fit(session, id):
-    
+   pass 
 
 def get_mapped_data(session, id):
     source = session.query(Source).filter_by(id = id).one().one()

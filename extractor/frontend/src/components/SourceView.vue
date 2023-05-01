@@ -34,16 +34,26 @@
     </div>
     <br>
     <b-card-group>
+      
       <div class="row">
         <div v-for="source in sources" :key="source.id" class="col-md-4">
-          <b-card
-              :title="source.name"
-              :sub-title="source.target_field">
-            <p class="card-text"><strong>Index name:</strong> {{ source.index_name }}</p>
-            <p class="card-text"><strong>Search object:</strong> {{ source.search_object }}</p>
-            <p class="card-text"><strong>ID:</strong> {{ source.id }}</p>
-            <b-button @click="showEditWindow(source.id)">Edit</b-button>
-            <b-button @click="deleteSource(source.id)" variant="danger">Delete</b-button>
+          <b-card no-body>
+            <b-tabs card>
+              <b-tab title="Settings">
+                <b-card
+                    :title="source.name"
+                    :sub-title="source.target_field">
+                  <p class="card-text"><strong>Index name:</strong> {{ source.index_name }}</p>
+                  <p class="card-text"><strong>Search object:</strong> {{ source.search_object }}</p>
+                  <p class="card-text"><strong>ID:</strong> {{ source.id }}</p>
+                  <b-button @click="showEditWindow(source.id)">Edit</b-button>
+                  <b-button @click="deleteSource(source.id)" variant="danger">Delete</b-button>
+                </b-card>
+              </b-tab>
+              <b-tab title="Graph">
+
+              </b-tab>
+            </b-tabs>
           </b-card>
         </div>
       </div>

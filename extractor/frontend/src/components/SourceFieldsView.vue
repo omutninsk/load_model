@@ -14,7 +14,7 @@
           <tr>
             <th>Name</th>
             <th>Operations</th>
-            <th></th> <!-- добавляем столбец для кнопки удаления -->
+            <th></th>
           </tr>
           </thead>
           <tbody>
