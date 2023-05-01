@@ -28,20 +28,14 @@ def fetch(session, id):
     if es is not None:
         res = es.search(source.index_name, json.dumps(source.search_object))
 
-    source = res.get('hits').get('hits')[0]
+    source = res.get('hits').get('hits')[0].get('_source')
 
     target = {}
 
-    rule_text = [
-        {"name":"copy",
-         "target": "items",
-         "source": "_source"
-         }
-    ]
     for field in fields:
         mapper = JsonMapper(source=source, target=target, rules=field.operations)
         mapper.run()
-    return target or source
+    return target, source
 
 def get_mapped_data(session, id):
     source = session.query(Source).filter_by(id = id).one().one()

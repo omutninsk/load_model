@@ -43,7 +43,7 @@ def create_source(session: Session, name: str, index_name: str, target_field: st
                 name = name,
                 index_name = index_name,
                 target_field = target_field,
-                search_object = json.loads(search_object)
+                search_object = json.loads(search_object.replace("'", '"'))
             )
     session.add(new_source)
     return source_id

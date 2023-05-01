@@ -1,39 +1,57 @@
 <template>
   <div>
     <h3>Source Fields</h3>
-    <table>
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Operations</th>
-        <th></th> <!-- добавляем столбец для кнопки удаления -->
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="field in sourceFields" :key="field.id">
-        <td>{{ field.name }}</td>
-        <td>{{ field.operations }}</td>
-        <td>
-          <b-button variant="danger" size="sm" @click="deleteSourceField(field.id)">
-            Delete
-          </b-button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <table>
-      <tr v-for="item in fetchedData" :key="item.key">
-        <td>{{item.key}}</td><td>{{item.value}}</td>
-      </tr>
-    </table>
-    <b-button @click="clearData">Clear</b-button>
-    <b-button @click="fetchData">Fetch</b-button>
+    <b-card no-body>
+    <b-tabs card>
+      <b-tab title="Data Rows">
+        <b-form-group>
+            <b-form-input v-model="newSourceField.name" placeholder="Enter field name"></b-form-input>
+            <b-form-input v-model="newSourceField.operations" placeholder="Operations"></b-form-input>
+            <b-button @click="addField">Add Field</b-button>
+        </b-form-group>
+        <table>
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Operations</th>
+            <th></th> <!-- добавляем столбец для кнопки удаления -->
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="field in sourceFields" :key="field.id">
+            <td>{{ field.name }}</td>
+            <td>{{ field.operations }}</td>
+            <td>
+              <b-button variant="danger" size="sm" @click="deleteSourceField(field.id)">
+                Delete
+              </b-button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </b-tab>
+      <b-tab title="Raw Data" active>
+        <table>
+          <tr v-for="item in sourceData" :key="item.key">
+            <td>{{item.key}}</td><td>{{item.value}}</td>
+          </tr>
+        </table>
+        <b-button @click="clearData">Clear</b-button>
+        <b-button @click="fetchData">Fetch</b-button>
+      </b-tab>
+      <b-tab title="Processed Data">
+        <table>
+          <tr v-for="item in fetchedData" :key="item.key">
+            <td>{{item.key}}</td><td>{{item.value}}</td>
+          </tr>
+        </table>
+      </b-tab>
+    </b-tabs>
+  </b-card>
+    
+    
 <!--    <b-table striped hover :items="sourceFields" :fields="tableFields"></b-table>-->
-    <b-form-group>
-      <b-form-input v-model="newSourceField.name" placeholder="Enter field name"></b-form-input>
-      <b-form-input v-model="newSourceField.operations" placeholder="Operations"></b-form-input>
-      <b-button @click="addField">Add Field</b-button>
-    </b-form-group>
+    
   </div>
 </template>
 
@@ -51,6 +69,7 @@ export default {
     return {
       sourceFields: [],
       result: [],
+      source: [],
       newSourceField: {
         name: '',
         operations: '',
@@ -70,6 +89,14 @@ export default {
         { key: 'name', label: 'Name', sortable: true },
         { key: 'operations', label: 'Operations' }
       ]
+    },
+    sourceData() {
+      const data = []
+      for (const key in this.source) {
+        data.push({key: key, value: this.source[key]})
+      }
+      console.log(data)
+      return data
     },
     fetchedData() {
       const data = []
@@ -92,6 +119,7 @@ export default {
         axios.get('/api/model/fetch', {params})
             .then(response => {
               this.result = response.data.items
+              this.source = response.data.source
             })
             .catch(error => {
               console.log(error)

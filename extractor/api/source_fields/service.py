@@ -26,7 +26,7 @@ def create_source_field(session: Session, name: str, source_id: str, operations:
                 id = source_field_id,
                 name = name,
                 source_id = source_id,
-                operations = json.loads(operations)
+                operations = json.loads(operations.replace("'", '"'))
             )
     session.add(new_source)
     return source_id

@@ -20,7 +20,7 @@ class Fetch(MethodView):
         """Обработка логов."""
         id= request.query_schema["id"]
         with session_scope() as session:
-            res = model_service.fetch(session, id)
-            return {"items": res}
+            res, source = model_service.fetch(session, id)
+            return {"items": res, "source": source}
 
 model_blueprint.add_url_rule('/fetch/', view_func=Fetch.as_view("fetch_api"))
