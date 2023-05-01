@@ -18,7 +18,6 @@ field_types = {'TEXT': TEXT,
                 'INTEGER': INTEGER,
                 'BOOLEAN': BOOLEAN}
 
-
 def create_source_field(session: Session, name: str, source_id: str, operations: str) -> str:
     """Create object."""           
     source_field_id = str(uuid.uuid4())

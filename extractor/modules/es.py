@@ -25,5 +25,8 @@ class ES_Connector():
     def get_indexes_list(self):
         return self.es.indices.get_alias("*")
 
-    def search(self, index_name, search):
-        return self.es.search(index=index_name, body=search)
+    def search(self, index_name, search, size=1000):
+        return self.es.search(index=index_name, body=search, size=size)
+    
+    def count(self, index_name, search, n):
+        return self.es.count(index=index_name, body=search)[100]

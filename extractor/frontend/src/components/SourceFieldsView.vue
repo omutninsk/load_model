@@ -5,14 +5,14 @@
     <b-tabs card>
       <b-tab title="Data Rows">
         <b-form-group>
-            <b-form-input v-model="newSourceField.name" placeholder="Enter field name"></b-form-input>
+            <b-form-input v-model="newSourceField.name" placeholder="Enter rule name"></b-form-input>
             <b-form-input v-model="newSourceField.operations" placeholder="Operations"></b-form-input>
             <b-button @click="addField">Add Field</b-button>
         </b-form-group>
         <table>
           <thead>
           <tr>
-            <th>Name</th>
+            <th>Rule</th>
             <th>Operations</th>
             <th></th>
           </tr>
