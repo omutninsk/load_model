@@ -57,7 +57,7 @@ class Fit(MethodView):
         """Обучение модели."""
         id= request.query_schema["id"]
         with session_scope() as session:
-            res = model_service.fit(session, id)
+            res = model_service.fit(session, id, 1000)
         df = pd.DataFrame.from_records(res)
         #df.fillna(0, inplace=True)
         df = model_service.encode_column('additional', df)
