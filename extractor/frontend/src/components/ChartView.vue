@@ -1,18 +1,30 @@
+<template>
+  <Bar :data="chartData" :chart-data="chartData" />
+</template>
+
+<script>
+// DataPage.vue
 import { Bar } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 export default {
-    extends: Bar,
-    mounted () {
-        // Overwriting base render method with actual data.
-        this.renderChart({
-            labels: ['January', 'February', 'March'],
-            datasets: [
-                {
-                    label: 'GitHub Commits',
-                    backgroundColor: '#af6262',
-                    data: [40, 20, 12]
-                }
-            ]
-        })
+  name: 'BarChart',
+  components: { Bar },
+  data() {
+    return {
+      chartData: {
+        labels: [ 'January', 'February', 'March'],
+        datasets: [
+          {
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: [40, 20, 12]
+          }
+        ]
+      }
     }
+  }
 }
+</script>

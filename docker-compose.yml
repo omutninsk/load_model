@@ -113,7 +113,23 @@ services:
       - RABBITMQ_DEFAULT_PASS=guest
     networks:
       - test_network
+  
+  request_generator:
+    build: ./request_generator
+    links:
+      - mq
+      - jaeger-agent
+      - microservice1
+    ports:
+      - 5001:5001
+    environment:
+      - SERVICE_NAME=request_generator
+      - CELERY_BROKER=amqp://guest:guest@mq:5672/
+      - CELERY_BACKEND=rpc://guest:guest@mq:5672/
+    command: ["start"]
 
+    networks:
+      - test_network
   tasks:
     build: ./request_generator
     links:
@@ -124,7 +140,7 @@ services:
     environment:
       - SERVICE_NAME=request_generator
       - CELERY_BROKER=amqp://guest:guest@mq:5672/
-      - CELEERY_BACKEND=rpc://guest:guest@mq:5672/
+      - CELERY_BACKEND=rpc://guest:guest@mq:5672/
     command: ["tasks"]
     networks:
       - test_network
@@ -138,7 +154,7 @@ services:
     environment:
       - SERVICE_NAME=request_generator
       - CELERY_BROKER=pyamqp://guest:guest@mq:5672/
-      - CELEERY_BACKEND=rpc://guest:guest@mq:5672/
+      - CELERY_BACKEND=rpc://guest:guest@mq:5672/
     command: ["flower"]
     networks:
       - test_network

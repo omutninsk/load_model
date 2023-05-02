@@ -131,9 +131,9 @@ def generate_image():
       image_bytes = image.generate()
       span.add_event('End image generation.')
       span.add_event('Logging into db.')
-      item = LogItem(action="generate_image", value=f'x={x},y={y}', created_date=datetime.datetime.utcnow())
-      db.session.add(item)
-      db.session.commit()
+      # item = LogItem(action="generate_image", value=f'x={x},y={y}', created_date=datetime.datetime.utcnow())
+      # db.session.add(item)
+      # db.session.commit()
     return send_file(image_bytes, mimetype='image/jpeg')
 
 if __name__ == '__main__':

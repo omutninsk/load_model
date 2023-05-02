@@ -5,6 +5,8 @@ from randimage import get_random_image
 import matplotlib
 import pickle
 import pandas as pd
+import numpy as np
+from json import JSONEncoder
 from flask import Blueprint, request, send_from_directory, current_app, send_file
 from flask.views import MethodView
 from sqlalchemy.orm import session
@@ -23,23 +25,48 @@ from session import session_scope
 
 model_blueprint = Blueprint('model', __name__)
 
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
 
 class Predict(MethodView):
     @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={400: base_schemas.ErrorResponseSchema})
     def get(self):
         """Предсказание."""
-        with open('model.pkl', 'rb') as f:
-            coef = pickle.load(f)
 
-        # Создание модели и установка загруженных коэффициентов
-        model = LinearRegression()
-        model.coef_ = coef
-        # img_size = (100,100)
-        # img = get_random_image(img_size)
-        # image_bytes = io.BytesIO()
-        # matplotlib.image.imsave(image_bytes, img)
-        # image_bytes.seek(0)
-        # return send_file(image_bytes, mimetype='image/jpeg')
+        model = None
+
+        with open('model.pkl', 'rb') as f:
+            model = pickle.load(f)
+        id= request.query_schema["id"]
+
+        with session_scope() as session:
+            res = model_service.fit(session, id, 100)
+
+        df = pd.DataFrame.from_records(res)
+        if 'additional' in df:
+            df = model_service.encode_column('additional', df)
+        data = model_service.add_parallel_processes(df)
+        y = data['duration']
+        data.drop(['duration'], axis=1, inplace=True)
+        poly = PolynomialFeatures(degree=2)
+        data_poly  = poly.fit_transform(data)
+        num_missing_params = len(model.coef_) - data_poly.shape[1]
+
+        data = np.pad(data_poly, ((0, 0), (0, num_missing_params)), mode='constant', constant_values=0)
+
+        # предсказание
+        y_pred = model.predict(data)
+
+        encoded_data = json.dumps(y_pred, cls=NumpyArrayEncoder) 
+
+        dic = y.to_list()
+
+        r2 = r2_score(y, y_pred)
+        return {"res": dic, "predict": encoded_data}
+
 
 class Fetch(MethodView):
     @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={400: base_schemas.ErrorResponseSchema})
@@ -82,7 +109,8 @@ class Fit(MethodView):
 
         print('R^2 score:', r2)
         with open('model.pkl', 'wb') as f:
-            pickle.dump(model.coef_, f)
+            #pickle.dump(model.coef_, f)
+            pickle.dump(model, f)
         return {"items": {"r2score": r2} }
 
 model_blueprint.add_url_rule('/fetch/', view_func=Fetch.as_view("fetch_api"))

@@ -51,7 +51,7 @@
                 </b-card>
               </b-tab>
               <b-tab title="Graph">
-                <img :src="image" alt="Logo" width="80" height="80" />
+<!--                <chart-view/>-->
                 {{ r2score }}
                 <b-button @click="getImage(source.id)" variant="danger">img</b-button>
                 <b-button @click="fit(source.id)" variant="danger">Fit</b-button>
@@ -67,10 +67,24 @@
 <script>
 import axios from 'axios'
 import SourceFieldsView from '@/components/SourceFieldsView.vue'
+// import ChartView from '@/components/ChartView.vue'
 export default {
   components: {SourceFieldsView},
   data() {
     return {
+      chartData: {
+        labels: [ 'January', 'February', 'March'],
+        datasets: [
+          {
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: [40, 20, 12]
+          }
+        ]
+      },
+      chartOptions: {
+        responsive: true
+      },
       image: null,
       r2score: null,
       showModal: false,
