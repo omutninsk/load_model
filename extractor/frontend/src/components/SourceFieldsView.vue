@@ -7,9 +7,9 @@
         <b-form-group>
             <b-form-input v-model="newSourceField.name" placeholder="Enter rule name"></b-form-input>
             <b-form-input v-model="newSourceField.operations" placeholder="Operations"></b-form-input>
-            <b-button @click="addField">Add Field</b-button>
+            <b-button @click="addField(source_id)">Add Field</b-button>
         </b-form-group>
-        <table>
+        <table v-if="sourceFields.length > 0">
           <thead>
           <tr>
             <th>Rule</th>
@@ -95,13 +95,14 @@ export default {
       for (const key in this.source) {
         data.push({key: key, value: this.source[key]})
       }
-      console.log(data)
       return data
     },
     fetchedData() {
       const data = []
-      for (const key in this.result) {
-        data.push({key: key, value: this.result[key]})
+      if (this.result) {
+        for (const key in this.result) {
+          data.push({key: key, value: this.result[key]})
+        }
       }
       console.log(data)
       return data
@@ -126,14 +127,19 @@ export default {
             })
       }
     },
-    addField() {
+    addField(id) {
       const formData = new FormData();
       formData.append('name', this.newSourceField.name)
       formData.append('operations', this.newSourceField.operations)
-      formData.append('source_id', this.source_id)
+      formData.append('source_id', id)
       axios.post('/api/source_fields', formData)
           .then(response => {
-            console.log(response)
+            this.newSourceField = {
+              name: '',
+              operations: '',
+              source_id: '',
+            }
+            console.log(response, 'get source fields')
             this.getSourceFields()
           })
           .catch(error => {
@@ -163,7 +169,7 @@ export default {
               this.sourceFields = response.data.items
             })
             .catch(error => {
-              console.log(error)
+              console.log('Ошибочка вышла', error)
             })
       }
 

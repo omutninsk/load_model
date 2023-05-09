@@ -28,5 +28,5 @@ class ES_Connector():
     def search(self, index_name, search, count):
         return self.es.search(index=index_name, body=search, size=count)
     
-    def count(self, index_name, search, n):
-        return self.es.count(index=index_name, body=search)[100]
+    # def count(self, index_name, search, n):
+    #     return self.es.count(index=index_name, body=search)[100]

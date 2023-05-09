@@ -1,9 +1,7 @@
 <template>
   <div>
     <div>
-      <!-- Кнопка для открытия модального окна -->
       <b-button @click="showModal = true">Add Source</b-button>
-      <!-- Модальное окно -->
       <b-modal v-model="showModal" title="Add Source" @ok="addSource" @cancel="showModal = false">
         <div>
           <form>
@@ -36,9 +34,8 @@
     <b-card-group>
       
       <div class="row">
-        <div v-for="source in sources" :key="source.id" class="col-md-4">
-          <b-card no-body>
-            <b-tabs card>
+        <div v-for="source in sources" :key="source.id" class="col-4">
+            <b-tabs>
               <b-tab title="Settings">
                 <b-card
                     :title="source.name"
@@ -51,13 +48,14 @@
                 </b-card>
               </b-tab>
               <b-tab title="Graph">
-<!--                <chart-view/>-->
-                {{ r2score }}
-                <b-button @click="getImage(source.id)" variant="danger">img</b-button>
-                <b-button @click="fit(source.id)" variant="danger">Fit</b-button>
+                <b-card>
+                  <Line :data="chartData" :options="options"/>
+                  {{ r2score }}
+                  <b-button @click="fit(source.id)" variant="danger">Fit</b-button>
+                </b-card>
+
               </b-tab>
             </b-tabs>
-          </b-card>
         </div>
       </div>
     </b-card-group>
@@ -67,23 +65,41 @@
 <script>
 import axios from 'axios'
 import SourceFieldsView from '@/components/SourceFieldsView.vue'
-// import ChartView from '@/components/ChartView.vue'
+import { Line } from 'vue-chartjs'
+import { Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend } from 'chart.js'
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+)
 export default {
-  components: {SourceFieldsView},
+  components: {SourceFieldsView, Line},
   data() {
     return {
+      options: {
+        responsive: true,
+        //maintainAspectRatio: false
+      },
       chartData: {
-        labels: [ 'January', 'February', 'March'],
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [
           {
             label: 'Data One',
             backgroundColor: '#f87979',
-            data: [40, 20, 12]
+            data: [40, 20, 12, 35, 56, 45, 67, 89, 80, 150]
           }
         ]
-      },
-      chartOptions: {
-        responsive: true
       },
       image: null,
       r2score: null,
@@ -108,22 +124,6 @@ export default {
     clear() {
       this.showEdit = false
       this.current_source_id=false
-    },
-    getImage(id) {
-      console.log(id)
-      this.image = null
-      setTimeout(console.log('n'),1)
-      this.image = '/api/model/predict/?id='+id
-      // const params = {
-      //   "id": id
-      // }
-      // axios.get(`/api/model/predict/`, {params}).then(response => {
-      //   console.log(response.data)
-      //       this.image = response.data
-      //     })
-      //     .catch(error => {
-      //       console.log(error)
-      //     })
     },
     fit(id) {
       console.log(id)

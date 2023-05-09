@@ -28,9 +28,6 @@ def encode_column(column_name, dataset):
 
 def add_parallel_processes(data):
     
-    #data['duration'] = data['duration'].astype(np.int64)
-    #data['starttime'] = data['starttime'].astype(np.int64)
-
     # Создание столбцов start и end
     data['start'] = data['starttime']
     data['end'] = data['start'] + data['duration']

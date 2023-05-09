@@ -64,8 +64,17 @@ class Predict(MethodView):
 
         dic = y.to_list()
 
+        predict = []
+        for item in y_pred:
+            predict.append(np.rint(item))
+
+        result = []
+        for idx, x in enumerate(predict):
+            result.append(dic[idx] - x)
+
+
         r2 = r2_score(y, y_pred)
-        return {"res": dic, "predict": encoded_data}
+        return {"res": dic, "predict": predict, "diff": result}
 
 
 class Fetch(MethodView):
@@ -109,7 +118,6 @@ class Fit(MethodView):
 
         print('R^2 score:', r2)
         with open('model.pkl', 'wb') as f:
-            #pickle.dump(model.coef_, f)
             pickle.dump(model, f)
         return {"items": {"r2score": r2} }
 
