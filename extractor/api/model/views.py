@@ -50,6 +50,7 @@ class Predict(MethodView):
             df = model_service.encode_column('additional', df)
         data = model_service.add_parallel_processes(df)
         y = data['duration']
+        d = data['starttime']
         data.drop(['duration'], axis=1, inplace=True)
         poly = PolynomialFeatures(degree=2)
         data_poly  = poly.fit_transform(data)
@@ -63,18 +64,23 @@ class Predict(MethodView):
         encoded_data = json.dumps(y_pred, cls=NumpyArrayEncoder) 
 
         dic = y.to_list()
+        
+        legend = d.to_list()
 
         predict = []
         for item in y_pred:
             predict.append(np.rint(item))
+        l = []
 
         result = []
         for idx, x in enumerate(predict):
             result.append(dic[idx] - x)
 
+        for  x in legend:
+            l.append(round(x/ 1000))
 
         r2 = r2_score(y, y_pred)
-        return {"res": dic, "predict": predict, "diff": result}
+        return {"res": dic, "predict": predict, "result": result, "legend": l}
 
 
 class Fetch(MethodView):

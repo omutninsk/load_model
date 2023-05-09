@@ -1,30 +1,96 @@
 <template>
-  <Bar :data="chartData" :chart-data="chartData" />
+  <Line v-if="loaded" :data="chartData" :chart-data="chartData" />
+  <b-button @click="getData(source_id)" variant="primary">Refresh</b-button>
 </template>
 
 <script>
-// DataPage.vue
-import { Bar } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
-
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
-
+import { Line } from 'vue-chartjs'
+import { Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend } from 'chart.js'
+import axios from "axios";
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+)
 export default {
+  props: {
+    source_id: {
+      type: String,
+      required: false
+    }
+  },
   name: 'BarChart',
-  components: { Bar },
+  components: { Line },
   data() {
     return {
+      loaded: false,
+      options: {
+        responsive: true,
+        //maintainAspectRatio: false
+      },
       chartData: {
-        labels: [ 'January', 'February', 'March'],
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
         datasets: [
           {
             label: 'Data One',
             backgroundColor: '#f87979',
-            data: [40, 20, 12]
+            data: [40, 20, 12, 35, 56, 45, 67, 89, 80, 150]
           }
         ]
-      }
+      },
     }
+  },
+  methods: {
+    getDate(ms) {
+      if (ms) {
+        let a = new Date(ms);
+        let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let year = a.getFullYear();
+        let month = months[a.getMonth()];
+        let date = a.getDate();
+        let hour = a.getHours();
+        let min = a.getMinutes();
+        let sec = a.getSeconds();
+        let time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+        return time;
+      }
+    },
+    getData(id) {
+      this.loaded = false
+      console.log(id)
+      const params = {
+        "id": id
+      }
+      axios.get(`/api/model/predict/`, {params}).then(response => {
+        this.chartData.labels = response.data.legend.map(this.getDate)
+        this.chartData.datasets = []
+        this.chartData.datasets.push(
+            {
+              label: "Model prediction difference",
+              data: response.data.result
+            }
+        )
+        console.log(response)
+        this.loaded = true
+      })
+          .catch(error => {
+            console.log(error)
+          })
+    }
+  },
+  mounted() {
+    this.getData(this.source_id)
   }
 }
 </script>

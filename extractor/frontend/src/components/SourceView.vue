@@ -49,7 +49,7 @@
               </b-tab>
               <b-tab title="Graph">
                 <b-card>
-                  <Line :data="chartData" :options="options"/>
+                  <ChartView :source_id="source.id"/>
                   {{ r2score }}
                   <b-button @click="fit(source.id)" variant="danger">Fit</b-button>
                 </b-card>
@@ -65,43 +65,11 @@
 <script>
 import axios from 'axios'
 import SourceFieldsView from '@/components/SourceFieldsView.vue'
-import { Line } from 'vue-chartjs'
-import { Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend } from 'chart.js'
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-)
+import ChartView from "@/components/ChartView.vue";
 export default {
-  components: {SourceFieldsView, Line},
+  components: {SourceFieldsView, ChartView},
   data() {
     return {
-      options: {
-        responsive: true,
-        //maintainAspectRatio: false
-      },
-      chartData: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-        datasets: [
-          {
-            label: 'Data One',
-            backgroundColor: '#f87979',
-            data: [40, 20, 12, 35, 56, 45, 67, 89, 80, 150]
-          }
-        ]
-      },
-      image: null,
       r2score: null,
       showModal: false,
       showEdit: false,
