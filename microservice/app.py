@@ -1,5 +1,5 @@
 import os, random, time, uuid, datetime
-from flask import Flask, request, send_file, render_template
+from flask import Flask, request, send_file, render_template, redirect, url_for
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -82,15 +82,29 @@ class RandomImage():
 
 @app.route('/')
 def index():
-  anomaly_setting = db.session.query(Settings).filter(Settings.action == 'anomaly').first()
-  anomaly = request.args.get('anomaly', False)
-  if anomaly == 'on':
-     anomaly_setting.value = 'true'
-     db.session.commit()
+  anomaly_setting = db.session.query(Settings).filter(Settings.action == 'anomaly').one()
+  if not anomaly_setting:
+    anomaly_setting = Settings(action="anomaly", value="false")
+    db.session.add(anomaly_setting)
+    db.session.commit()
+  return render_template('index_m.htm', anomaly=anomaly_setting.value)
+
+@app.route('/set_anomaly', methods=['GET'])
+def set_anomaly():
+  anomaly_setting = db.session.query(Settings).filter(Settings.action == 'anomaly').one()
+  if anomaly_setting:
+    anomaly = request.args.get('anomaly', False)
+    if anomaly == 'on':
+      anomaly_setting.value = 'true'
+      db.session.commit()
+    else:
+      anomaly_setting.value = 'false'
+      db.session.commit()
   else:
-     anomaly_setting.value = 'false'
-     db.session.commit()
-  return render_template('index_m.htm', anomaly=anomaly)
+    item = Settings(action="anomaly", value="false")
+    db.session.add(item)
+    db.session.commit()
+  return redirect(url_for('index'))
 
 @app.route('/get_logs', methods=['GET'])
 def get_logs():

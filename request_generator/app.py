@@ -110,10 +110,12 @@ def make_sync_request(url):
     time.sleep(randint(1,15))
     with tracer.start_as_current_span('make_request') as span:
         span.add_event(f'Send request {url}')
+        print(url)
         requests.get(url)
 
 def make_requests():
     urls = []
+    microservice_host = os.environ.get('MICROSERVICE_HOST')
     for i in range(randint(1,10)):
         x = random.randrange(300) + 50
         y = random.randrange(300) + 50

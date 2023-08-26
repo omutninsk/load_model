@@ -5,12 +5,12 @@
 </head>
 <body>
   <h1>Microservice</h1>
-  <form method="GET">
+  <form action="/set_anomaly" method="GET">
     <label for="anomaly">Anomaly:</label>
-    {% if anomaly=='on' %}
-         <input type="checkbox" name="anomaly" checked><br>
+    {% if anomaly=='true' %}
+      <input type="checkbox" name="anomaly" checked><br>
     {% else %}
-    <input type="checkbox" name="anomaly"><br>
+      <input type="checkbox" name="anomaly"><br>
     {% endif %}
     <input type="submit" value="Save">
   </form>
