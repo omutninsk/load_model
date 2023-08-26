@@ -40,11 +40,11 @@
                 "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/logs_db"
             },
             "args": [
-                "db",
+                //"db",
                 //"init",
                 //"migrate",
-                "upgrade",
-                //"run",
+                //"upgrade",
+                "run",
                 //"--no-debugger"
             ],
             "jinja": true,

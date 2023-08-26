@@ -89,14 +89,13 @@ services:
     depends_on:
       - jaeger-agent
 
-
   db:
     restart: always
     image: postgres
     ports:
       - "5432:5432"
     volumes:
-      - /var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -126,6 +125,7 @@ services:
       - SERVICE_NAME=request_generator
       - CELERY_BROKER=amqp://guest:guest@mq:5672/
       - CELERY_BACKEND=rpc://guest:guest@mq:5672/
+      - MICROSERVICE_HOST=127.0.0.1:5011
     command: ["start"]
 
     networks:
@@ -158,6 +158,7 @@ services:
     command: ["flower"]
     networks:
       - test_network
+  
   microservice1:
     build: ./microservice
     ports:
@@ -193,6 +194,8 @@ services:
 
 volumes:
   esdata:
+    driver: local
+  postgres_data:
     driver: local
 
 networks:

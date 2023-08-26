@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor
 from random import randint
 
 name=os.environ.get('SERVICE_NAME')
-
+microservice_host = os.environ.get('MICROSERVICE_HOST')
 # @worker_process_init.connect(weak=False)
 # def init_celery_tracing(*args, **kwargs):
 #     trace.set_tracer_provider(TracerProvider(
@@ -117,7 +117,7 @@ def make_requests():
     for i in range(randint(1,10)):
         x = random.randrange(300) + 50
         y = random.randrange(300) + 50
-        urls.append(f'http://localhost:5011/generate_image?x={x}&y={y}' + make_additional())
+        urls.append(f'http://{microservice_host}/generate_image?x={x}&y={y}' + make_additional())
         with ThreadPoolExecutor(max_workers=10) as executor: # создаем пул из 10 потоков
             for url in urls:
                 executor.submit(make_sync_request, url)
@@ -140,4 +140,5 @@ def start_task():
     send_requests.apply_async()
     return 'ok'
 if __name__ == "__main__": 
+  print(microservice_host)
   app.run(host='0.0.0.0', port=5001)

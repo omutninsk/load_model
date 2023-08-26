@@ -74,7 +74,7 @@ class Predict(MethodView):
 
         result = []
         for idx, x in enumerate(predict):
-            result.append(dic[idx] - x)
+            result.append(round((dic[idx] - x)/1000))
 
         for  x in legend:
             l.append(round(x/ 1000))
