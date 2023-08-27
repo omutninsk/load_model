@@ -115,6 +115,7 @@ def make_sync_request(url):
 
 def make_requests():
     urls = []
+    random.seed(27)
     microservice_host = os.environ.get('MICROSERVICE_HOST')
     for i in range(randint(1,10)):
         x = random.randrange(300) + 50
@@ -122,6 +123,7 @@ def make_requests():
         urls.append(f'http://{microservice_host}/generate_image?x={x}&y={y}' + make_additional())
         with ThreadPoolExecutor(max_workers=10) as executor: # создаем пул из 10 потоков
             for url in urls:
+                print(url)
                 executor.submit(make_sync_request, url)
 
 

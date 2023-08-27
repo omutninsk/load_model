@@ -142,6 +142,7 @@ services:
       - SERVICE_NAME=request_generator
       - CELERY_BROKER=amqp://guest:guest@mq:5672/
       - CELERY_BACKEND=rpc://guest:guest@mq:5672/
+      - MICROSERVICE_HOST=127.0.0.1:5011
     command: ["tasks"]
     networks:
       - test_network
