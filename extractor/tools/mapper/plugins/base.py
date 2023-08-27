@@ -39,7 +39,7 @@ class BasePlugin:
         :return: Искомое значение
         """
         if len(attrs_dict) == 1:
-            if obj[attrs_dict[0]] is not None:
+            if obj.get(attrs_dict[0]) is not None:
                 return obj[attrs_dict[0]]
             else:
                 return default

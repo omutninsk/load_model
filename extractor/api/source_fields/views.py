@@ -24,8 +24,9 @@ class SourceField(MethodView):
         name = request.form_schema["name"]
         source_id = request.form_schema["source_id"]
         operations = request.form_schema["operations"]
+        variable_type = request.form_schema["variable_type"]
         with session_scope() as session:
-            id = source_field_service.create_source_field(session, name, source_id, operations)
+            id = source_field_service.create_source_field(session, name, source_id, operations, variable_type)
         return {"msg": "Объект создан", "data": {"id": id}}
     
     @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={200: source_field_schemas.SourceFieldListResponseSchema, 400: base_schemas.ErrorResponseSchema})

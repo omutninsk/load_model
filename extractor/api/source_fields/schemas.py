@@ -9,6 +9,7 @@ class SourceFieldCreateCommandSchema(Schema):
 
     name = fields.String(required=True, doc='Название')
     operations = fields.String(required=True, doc='Обработчики поля')
+    variable_type = fields.String(required=True, doc='Тип переменной')
     source_id = fields.String(required=True, doc='Идентификатор источника данных')
     class Meta:
         """Meta."""
@@ -21,6 +22,7 @@ class SourceFieldResponseSchema(Schema):
     id = fields.String(required=True, doc='id')
     name = fields.String(required=True, doc='Название')
     operations = fields.String(required=True, doc='Обработчики поля')
+    variable_type = fields.String(required=True, doc='Тип переменной')
     source_id = fields.String(required=True, doc='Идентификатор источника данных')
     class Meta:
         """Meta."""

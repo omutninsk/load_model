@@ -2,7 +2,7 @@
 
 import uuid
 from sqlalchemy import Column, ForeignKey
-from sqlalchemy.dialects.postgresql import TIMESTAMP, JSON, TEXT, INTEGER, BOOLEAN, BYTEA
+from sqlalchemy.dialects.postgresql import TIMESTAMP, JSON, TEXT, ENUM,INTEGER, BOOLEAN, BYTEA
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 Base = declarative_base()
@@ -30,9 +30,10 @@ class SourceField(Base):
 
     __tablename__ = 'source_fields'
     id = Column(TEXT, primary_key=True, nullable=False, default=uuid.uuid4)
-    source_id = Column(TEXT, ForeignKey('sources.id'), nullable=True)
+    source_id = Column(TEXT, ForeignKey('sources.id', ondelete='CASCADE'), nullable=True)
     name = Column(TEXT, nullable=False)
     operations = Column(JSON, nullable=True)
+    variable_type = Column(ENUM('quantitative', 'categorical', name='variable_type_enum'))
 
 
 

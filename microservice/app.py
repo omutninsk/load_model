@@ -11,6 +11,7 @@ from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from sqlalchemy.exc import MultipleResultsFound
 
 name=os.environ.get('SERVICE_NAME')
 provider = TracerProvider()
@@ -100,6 +101,13 @@ def set_anomaly():
       anomaly_setting.value = 'false'
       db.session.commit()
   except:
+    pass
+  return redirect(url_for('index'))
+
+@app.route('/seed', methods=['GET'])
+def seed():
+  anomaly = db.session.query(Settings).filter(Settings.action == 'anomaly').scalar()
+  if anomaly == 0:
     item = Settings(action="anomaly", value="false")
     db.session.add(item)
     db.session.commit()

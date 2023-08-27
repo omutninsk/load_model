@@ -4,5 +4,7 @@ Index name: jaeger-*
 
 Search object: {'query': {'constant_score': {'filter': {'bool': {'must': [{'term': {'process.serviceName': 'microservice1'}}, {'term': {'operationName': '/generate_image'}}]}}}}}
 
-duration	[{'name': 'copy', 'target': 'duration', 'source': '_source.duration'}]		
-endpoint	[{'name': 'get_by_key', 'source': '_source.tags', 'target': 'endpoint', 'key': 'key', 'key_value': 'http.target', 'return_key': 'value'}, {'name': 'extract_regexp', 'source': 'endpoint', 'target': 'endpoint2', 'regexp': ''}]
+duration	[{'name': 'copy', 'target': 'duration', 'source': '_source.duration'}]	
+x	[{'name': 'get_by_key', 'source': '_source.tags', 'target': 'endpoint', 'key': 'key', 'key_value': 'http.target', 'return_key': 'value'}, {'name': 'extract_regexp', 'source': 'endpoint', 'target': 'endpoint', 'regexp': ''}, {'name': 'copy', 'target': 'x', 'source': 'endpoint.x'}]	
+y	[{'name': 'get_by_key', 'source': '_source.tags', 'target': 'endpoint', 'key': 'key', 'key_value': 'http.target', 'return_key': 'value'}, {'name': 'extract_regexp', 'source': 'endpoint', 'target': 'endpoint', 'regexp': ''}, {'name': 'copy', 'target': 'y', 'source': 'endpoint.y'}]	
+additional	[{'name': 'get_by_key', 'source': '_source.tags', 'target': 'endpoint', 'key': 'key', 'key_value': 'http.target', 'return_key': 'value'}, {'name': 'extract_regexp', 'source': 'endpoint', 'target': 'endpoint', 'regexp': ''}, {'name': 'copy', 'target': 'additional', 'source': 'endpoint.additional'}]

@@ -7,6 +7,7 @@
         <b-form-group>
             <b-form-input v-model="newSourceField.name" placeholder="Enter rule name"></b-form-input>
             <b-form-input v-model="newSourceField.operations" placeholder="Operations"></b-form-input>
+            <b-form-select v-model="newSourceField.variable_type" :options="options"></b-form-select>
             <b-button @click="addField(source_id)">Add Field</b-button>
         </b-form-group>
         <table v-if="sourceFields.length > 0">
@@ -14,6 +15,7 @@
           <tr>
             <th>Rule</th>
             <th>Operations</th>
+            <th>Var type</th>
             <th></th>
           </tr>
           </thead>
@@ -21,6 +23,7 @@
           <tr v-for="field in sourceFields" :key="field.id">
             <td>{{ field.name }}</td>
             <td>{{ field.operations }}</td>
+            <td>{{ field.variable_type }}</td>
             <td>
               <b-button variant="danger" size="sm" @click="deleteSourceField(field.id)">
                 Delete
@@ -70,10 +73,15 @@ export default {
       sourceFields: [],
       result: [],
       source: [],
+      options: [
+          { value: 'categorical', text: 'categorical' },
+          { value: 'quantitative', text: 'quantitative' }
+        ],
       newSourceField: {
         name: '',
         operations: '',
         source_id: '',
+        variable_type: 'categorical'
       }
     }
   },
@@ -87,7 +95,8 @@ export default {
       return [
         // { key: 'id', label: 'ID', sortable: true },
         { key: 'name', label: 'Name', sortable: true },
-        { key: 'operations', label: 'Operations' }
+        { key: 'operations', label: 'Operations' },
+        { key: 'variable_type', label: 'Variable Type' }
       ]
     },
     sourceData() {
@@ -131,12 +140,14 @@ export default {
       const formData = new FormData();
       formData.append('name', this.newSourceField.name)
       formData.append('operations', this.newSourceField.operations)
+      formData.append('variable_type', this.newSourceField.variable_type)
       formData.append('source_id', id)
       axios.post('/api/source_fields', formData)
           .then(response => {
             this.newSourceField = {
               name: '',
               operations: '',
+              variable_type: 'categorical',
               source_id: '',
             }
             console.log(response, 'get source fields')

@@ -69,12 +69,12 @@
                 "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:postgres@localhost:5432/extractor"
             },
             "args": [
-                // "db",
+                //"db",
                 // "init",
                 //"migrate",
                 // "upgrade",
                 "run",
-                "--no-debugger"
+                //"--no-debugger"
             ],
             "jinja": true,
             "justMyCode": true

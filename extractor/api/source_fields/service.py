@@ -18,7 +18,7 @@ field_types = {'TEXT': TEXT,
                 'INTEGER': INTEGER,
                 'BOOLEAN': BOOLEAN}
 
-def create_source_field(session: Session, name: str, source_id: str, operations: str) -> str:
+def create_source_field(session: Session, name: str, source_id: str, operations: str, variable_type: str) -> str:
     """Create object."""           
     source_field_id = str(uuid.uuid4())
     operations = operations.replace("'", '"')
@@ -26,7 +26,8 @@ def create_source_field(session: Session, name: str, source_id: str, operations:
                 id = source_field_id,
                 name = name,
                 source_id = source_id,
-                operations = json.loads(operations)
+                operations = json.loads(operations),
+                variable_type = variable_type
             )
     session.add(new_source)
     return source_id

@@ -82,7 +82,6 @@ class Predict(MethodView):
         r2 = r2_score(y, y_pred)
         return {"res": dic, "predict": predict, "result": result, "legend": l}
 
-
 class Fetch(MethodView):
     @swagger_decorator(query_schema=base_schemas.GetByIdQuerySchema, response_schema={400: base_schemas.ErrorResponseSchema})
     def get(self):

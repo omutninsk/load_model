@@ -131,6 +131,7 @@ services:
 
     networks:
       - test_network
+  
   tasks:
     build: ./request_generator
     links:
@@ -146,6 +147,7 @@ services:
     command: ["tasks"]
     networks:
       - test_network
+  
   flower:
     build: ./request_generator
     ports:
