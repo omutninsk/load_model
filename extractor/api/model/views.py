@@ -43,23 +43,23 @@ class Predict(MethodView):
         id= request.query_schema["id"]
 
         with session_scope() as session:
-            res = model_service.fit(session, id, 100)
+            res = model_service.prepare_data(session, id, 100)
 
         df = pd.DataFrame.from_records(res)
         if 'additional' in df:
             df = model_service.encode_column('additional', df)
-        data = model_service.add_parallel_processes(df)
-        y = data['duration']
-        d = data['starttime']
-        data.drop(['duration'], axis=1, inplace=True)
+        #data = model_service.add_parallel_processes(df)
+        y = df['duration']
+        d = df['starttime']
+        df.drop(['duration'], axis=1, inplace=True)
         poly = PolynomialFeatures(degree=2)
-        data_poly  = poly.fit_transform(data)
-        num_missing_params = len(model.coef_) - data_poly.shape[1]
+        data_poly  = poly.fit_transform(df)
+        #num_missing_params = len(model.coef_) - data_poly.shape[1]
 
-        data = np.pad(data_poly, ((0, 0), (0, num_missing_params)), mode='constant', constant_values=0)
+        #data = np.pad(data_poly, ((0, 0), (0, num_missing_params)), mode='constant', constant_values=0)
 
         # предсказание
-        y_pred = model.predict(data)
+        y_pred = model.predict(data_poly)
 
         encoded_data = json.dumps(y_pred, cls=NumpyArrayEncoder) 
 
@@ -98,20 +98,20 @@ class Fit(MethodView):
         """Обучение модели."""
         id= request.query_schema["id"]
         with session_scope() as session:
-            res = model_service.fit(session, id, 1000)
+            res = model_service.prepare_data(session, id, 1000)
         df = pd.DataFrame.from_records(res)
         #df.fillna(0, inplace=True)
         df = model_service.encode_column('additional', df)
-        data = model_service.add_parallel_processes(df)
+        #data = model_service.add_parallel_processes(df)
         
-        y = data['duration']
-        data.drop(['duration'], axis=1, inplace=True)
+        y = df['duration']
+        df.drop(['duration'], axis=1, inplace=True)
 
         # Создаем объект для преобразования данных
         poly = PolynomialFeatures(degree=2)
 
         # Преобразуем признаки
-        X_poly = poly.fit_transform(data)
+        X_poly = poly.fit_transform(df)
 
         X_train, X_test, y_train, y_test = train_test_split(X_poly, y, test_size=0.2, random_state=42)
 

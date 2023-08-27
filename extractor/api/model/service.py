@@ -67,7 +67,7 @@ def fetch(session, id, count):
     
     return result, source
 
-def fit(session, id, count):
+def prepare_data(session, id, count):
     result = []
     source = session.query(Source).filter_by(id = id).one()
     fields = session.query(SourceField).filter_by(source_id = id).all()

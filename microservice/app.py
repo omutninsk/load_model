@@ -84,9 +84,6 @@ class RandomImage():
 @app.route('/')
 def index():
   anomaly_setting = db.session.query(Settings).filter(Settings.action == 'anomaly').one()
-  anomaly_setting = Settings(action="anomaly", value="false")
-  db.session.add(anomaly_setting)
-  db.session.commit()
   return render_template('index_m.htm', anomaly=anomaly_setting.value)
 
 @app.route('/set_anomaly', methods=['GET'])

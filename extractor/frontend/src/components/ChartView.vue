@@ -1,6 +1,8 @@
 <template>
-  <Line v-if="loaded" :data="chartData" :chart-data="chartData" />
-  <b-button @click="getData(source_id)" variant="primary">Refresh</b-button>
+  <div style="width: max-content;">
+    <Line v-if="loaded" :data="chartData" :chart-data="chartData" :style="myStyles"/>
+    <b-button @click="getData(source_id)" variant="primary">Refresh</b-button>
+  </div>
 </template>
 
 <script>
@@ -35,9 +37,9 @@ export default {
   data() {
     return {
       loaded: false,
+      //responsive: true,
       options: {
-        responsive: true,
-        //maintainAspectRatio: false
+        // maintainAspectRatio: true
       },
       chartData: {
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -73,6 +75,7 @@ export default {
         "id": id
       }
       axios.get(`/api/model/predict/`, {params}).then(response => {
+        console.log(this.chartData, 'received chart data')
         this.chartData.labels = response.data.legend.map(this.getDate)
         this.chartData.datasets = []
         this.chartData.datasets.push(
@@ -81,12 +84,21 @@ export default {
               data: response.data.result
             }
         )
-        console.log(response)
+        console.log(this.chartData, response)
         this.loaded = true
       })
           .catch(error => {
             console.log(error)
           })
+    }
+  },
+  computed: {
+    myStyles () {
+      return {
+        width: '450px',
+        height: '300px',
+        position: 'relative'
+      }
     }
   },
   mounted() {

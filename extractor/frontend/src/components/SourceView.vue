@@ -49,6 +49,7 @@
               </b-tab>
               <b-tab title="Graph">
                 <b-card>
+                  r2score {{ r2score }}
                   <ChartView :source_id="source.id"/>
                   <b-button @click="fit(source.id)" variant="danger">Fit</b-button>
                 </b-card>
